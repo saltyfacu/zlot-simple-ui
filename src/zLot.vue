@@ -255,8 +255,7 @@ export default {
 <style>
 button {
   margin-right: 1em;
-  min-width: 120px;
-  padding-bottom: 4px;
+  min-width: 110px;
 }
 .muted {
   color: gray;
@@ -268,9 +267,6 @@ button {
 }
 .separator {
   margin-top: 2em;
-}
-input {
-  height: 22px;
 }
 a, a:visited, a:hover {
   color: gray;
