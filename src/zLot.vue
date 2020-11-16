@@ -34,7 +34,7 @@
     p.separator
       div.muted
         span Made with 💙  
-        span Pool:  
+        span Contracts:  
         a(href='https://zlot.finance/', target='_blank') zLot Finance
         span  - UI:  
         a(href='https://twitter.com/fameal', target='_blank') fameal
