@@ -2,32 +2,36 @@
   div(v-if="isDrizzleInitialized", id="app")
     h1 zLOT HEGIC POOL
     div Lots: {{ lots }}
-    div Progress for lot # {{ lots+1 }}: {{ pool_unused_balance/lot_price | toPct()}}
-    p
-    div Hegic price (CoinGecko 🦎): {{ hegic_price | fromWei(4) | toCurrency(4) }}
-    div Total Assets: {{ pool_total_underlying | fromWei(2) }}
+    div Progress for lot # {{ lots+1 }}:
+    progress-bar(:progress="next_lot_progress" :width="50")
+    p.separator
+    div Hegic Price (CoinGecko 🦎): {{ hegic_price | fromWei(4) | toCurrency(4) }}
+    div Total HEGIC Locked: {{ pool_total_underlying | fromWei(2) }}
     div Total AUM: {{ pool_total_aum | toCurrency(2) }}  
-    p
+    p.separator
     div Price Per Share: {{ pool_price_per_share | fromWei(8) }}
     div ETH Unclaimed Profit: {{ eth_unclaimed_rewards | fromWei(8) }}
     div WBTC Unclaimed Profit: {{ wbtc_unclaimed_rewards | fromSatoshi(8) }}
-    p
-    p
+    p.separator    
     div Your Account: <strong>{{ username || activeAccount }}</strong>
-    div Your Pool shares ({{ zhegic_balance/zhegic_total_supply | toPct(2) }}): {{ zhegic_balance | fromWei(2) }}
+    div Your Pool Shares ({{ zhegic_balance/zhegic_total_supply | toPct(2) }}): {{ zhegic_balance | fromWei(2) }}
     div Your Hegic Balance: {{ hegic_balance | fromWei(2) }}
-    p
+    p.separator
     label Amount 
-    input(size="is-small" v-model.number="amount" type="number" min=0)
-    p
+    input(size="is-small" v-model.number="deposit_amount" type="number" min=0)
+    | 
     button(v-if="!has_allowance_pool", @click.prevent='on_approve_pool') {{ has_allowance_pool ? '✅ Approved' : '🚀 Approve' }}
     button(v-if="has_allowance_pool" :disabled='!has_allowance_pool', @click.prevent='on_deposit') 🏦 Deposit
     button(v-if="has_allowance_pool" :disabled='!has_allowance_pool', @click.prevent='on_deposit_all') 🏦 Deposit All
+    p
+    label Amount 
+    input(size="is-small" v-model.number="withdraw_amount" type="number" min=0)
+    | 
+    button(:disabled='!has_zhegic_balance', @click.prevent='on_withdraw') 💸 Withdraw
     button(:disabled='!has_zhegic_balance', @click.prevent='on_withdraw_all') 💸 Withdraw All
     div.red(v-if="error")
       span {{ error }}
-    p
-    p
+    p.separator
       div.muted
         span Made with 💙  
         span Pool:  
@@ -41,19 +45,24 @@
 import { mapGetters } from 'vuex'
 import ethers from 'ethers'
 import axios from 'axios'
+import ProgressBar from './components/ProgressBar'
+
 
 const max_uint = new ethers.BigNumber.from(2).pow(256).sub(1).toString()
-//const BN_ZERO = new ethers.BigNumber.from(0)
 const ERROR_NEGATIVE = "You have to deposit a positive number of tokens 🐀"
 const ERROR_NEGATIVE_WITHDRAW = "You don't have any vault shares"
 
 export default {
   name: 'zLot',
+  components: {
+    ProgressBar,
+  },
   data() {
     return {
       username: null,
       hegic_price: 0,
-      amount: 0,
+      deposit_amount: 0,
+      withdraw_amount: 0,
       error: null
     }
   },
@@ -101,27 +110,38 @@ export default {
     on_deposit() {
       this.error = null
 
-      if (this.amount <= 0) {
+      if (this.deposit_amount <= 0) {
         this.error = ERROR_NEGATIVE
-        this.amount = 0
+        this.deposit_amount = 0
         return
       }
 
-      this.drizzleInstance.contracts['HegicPool'].methods['deposit'].cacheSend(ethers.utils.parseEther(this.amount.toString()).toString(), {from: this.activeAccount})
+      this.drizzleInstance.contracts['HegicPool'].methods['deposit'].cacheSend(ethers.utils.parseEther(this.deposit_amount.toString()).toString(), {from: this.activeAccount})
     },
     on_deposit_all() {
       if (this.hegic_balance <= 0) {
         this.error = ERROR_NEGATIVE
-        this.amount = 0
+        this.deposit_amount = 0
         return
       }
 
       this.drizzleInstance.contracts['HegicPool'].methods['depositAll'].cacheSend({from: this.activeAccount})
     },
+    on_withdraw() {
+      this.error = null
+
+      if (this.withdraw_amount <= 0) {
+        this.error = ERROR_NEGATIVE_WITHDRAW
+        this.withdraw_amount = 0
+        return
+      }
+
+      this.drizzleInstance.contracts['HegicPool'].methods['withdraw'].cacheSend(ethers.utils.parseEther(this.withdraw_amount.toString()).toString(), {from: this.activeAccount})
+    },
     on_withdraw_all() {
       if (this.zhegic_balance <= 0) {
         this.error = ERROR_NEGATIVE_WITHDRAW
-        this.amount = 0
+        this.withdraw_amount = 0
         return
       }
       this.drizzleInstance.contracts['HegicPool'].methods['withdrawAll'].cacheSend({from: this.activeAccount})
@@ -179,6 +199,9 @@ export default {
       let toInt = new ethers.BigNumber.from(10).pow(18).pow(2).toString()
       return this.pool_total_underlying.mul(this.hegic_price).div(toInt)
     },
+    next_lot_progress() {
+      return (this.lot_price.isZero()?0:this.pool_unused_balance/this.lot_price)
+    },
     pool_price_per_share() {
       return this.call('HegicPool', 'getPricePerFullShare', [])
     },
@@ -192,9 +215,6 @@ export default {
     lots() {
       let lots = this.call('LotManager', 'balanceOfLots', [], 'object')
       if (lots !== null) {
-        console.log("ETH Lots: " + lots._ethLots)
-        console.log("WBTC Lots: " + lots._wbtcLots)
-
         let total_lots = parseInt(lots._ethLots) + parseInt(lots._wbtcLots)
         return total_lots
       }
@@ -235,6 +255,8 @@ export default {
 <style>
 button {
   margin-right: 1em;
+  min-width: 120px;
+  padding-bottom: 4px;
 }
 .muted {
   color: gray;
@@ -243,6 +265,12 @@ button {
 .red{
   color: red;
   font-weight: 700;
+}
+.separator {
+  margin-top: 2em;
+}
+input {
+  height: 22px;
 }
 a, a:visited, a:hover {
   color: gray;
