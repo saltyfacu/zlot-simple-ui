@@ -1,6 +1,6 @@
 <template lang="pug">
-  div(v-if="isDrizzleInitialized", id="app")
-    h1 zLOT HEGIC POOL
+  div(v-if="isDrizzleInitialized")
+    h1 Stake
     div Lots: {{ lots }}
     div Progress for lot # {{ lots+1 }}:
     progress-bar(:progress="next_lot_progress" :width="50")
@@ -53,7 +53,7 @@ const ERROR_NEGATIVE = "You have to deposit a positive number of tokens 🐀"
 const ERROR_NEGATIVE_WITHDRAW = "You don't have any vault shares"
 
 export default {
-  name: 'zLot',
+  name: 'Stake',
   components: {
     ProgressBar,
   },
@@ -268,7 +268,5 @@ button {
 .separator {
   margin-top: 2em;
 }
-a, a:visited, a:hover {
-  color: gray;
-}
+
 </style>
