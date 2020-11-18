@@ -1,21 +1,22 @@
 <template lang="pug">
   div(v-if="isDrizzleInitialized", id="app")
     .logo 💤🌖🎱
+    div(class="nav")
+      router-link(to="/stake") Stake
+      router-link(to="/pools") Pools
+      router-link(to="/zgovernance") ZGovernance
     .section
-      zLot
+      <router-view></router-view>
   div(v-else)
     div Loading 💤🌖🎱...
 </template>
 
 <script>
-import zLot from './zLot'
 import { mapGetters } from 'vuex'
 
 export default {
   name: 'app',
-  components: {
-    zLot,
-  },
+  components: {},
 
   computed: mapGetters('drizzle', ['isDrizzleInitialized'])
 }
@@ -35,7 +36,41 @@ export default {
   margin-top: 60px;
 }
 
+a, a:visited, a:hover {
+  color: gray;
+}
+
+.column {
+  float: left;
+  width: 30%;
+}
+
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
 .logo {
   font-size: 100px;
+}
+
+.nav a, .nav a:visited, .nav a:hover {
+  margin-right: 1em;
+  padding-left: 0.3em;
+  padding-right: 0.3em;
+}
+
+.router-link-active {
+  background-color: gray;
+  color: white !important;
+}
+.nav a::before {
+  content: "[";
+  text-decoration: none;
+}
+.nav a::after {
+  content: "]";
+  text-decoration: none;
 }
 </style>
