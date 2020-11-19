@@ -5,17 +5,18 @@
     div Progress for lot # {{ lots+1 }}:
     progress-bar(:progress="next_lot_progress" :width="50")
     p.separator
-    div Hegic Price (CoinGecko 🦎): {{ hegic_price | fromWei(4) | toCurrency(4) }}
-    div Total HEGIC Locked: {{ pool_total_underlying | fromWei(2) }}
-    div Total AUM: {{ pool_total_aum | toCurrency(2) }}  
+    div <span class="label">Hegic Price (CoinGecko 🦎):</span> {{ hegic_price | fromWei(4) | toCurrency(4) }}
+    div <span class="label">Total HEGIC Locked:</span> {{ pool_total_underlying | fromWei(2) }}
+    div <span class="label">Total AUM:</span> {{ pool_total_aum | toCurrency(2) }}  
     p.separator
-    div Price Per Share: {{ pool_price_per_share | fromWei(8) }}
-    div ETH Unclaimed Profit: {{ eth_unclaimed_rewards | fromWei(8) }}
-    div WBTC Unclaimed Profit: {{ wbtc_unclaimed_rewards | fromSatoshi(8) }}
-    p.separator    
-    div Your Account: <strong>{{ username || activeAccount }}</strong>
-    div Your Pool Shares ({{ zhegic_balance/zhegic_total_supply | toPct(2) }}): {{ zhegic_balance | fromWei(2) }}
-    div Your Hegic Balance: {{ hegic_balance | fromWei(2) }}
+    div <span class="label">Price Per Share:</span> {{ pool_price_per_share | fromWei(8) }}
+    div <span class="label">ETH Unclaimed Profit:</span> {{ eth_unclaimed_rewards | fromWei(8) }}
+    div <span class="label">WBTC Unclaimed Profit:</span> {{ wbtc_unclaimed_rewards | fromSatoshi(8) }}
+    p.separator
+    div(class="your-account")
+      div Your Account: <strong>{{ username || activeAccount }}</strong>
+      div Your Pool Shares ({{ zhegic_balance/zhegic_total_supply | toPct(2) }}): {{ zhegic_balance | fromWei(2) }}
+      div Your Balance: {{ hegic_balance | fromWei(2) }} <span class="unit">HEGIC</span>
     p.separator
     label Amount 
     input(size="is-small" v-model.number="deposit_amount" type="number" min=0)
@@ -31,13 +32,6 @@
     button(:disabled='!has_zhegic_balance', @click.prevent='on_withdraw_all') 💸 Withdraw All
     div.red(v-if="error")
       span {{ error }}
-    p.separator
-      div.muted
-        span Made with 💙  
-        span Contracts:  
-        a(href='https://zlot.finance/', target='_blank') zLot Finance
-        span  - UI:  
-        a(href='https://twitter.com/fameal', target='_blank') fameal
 
 </template>
 
@@ -268,5 +262,4 @@ button {
 .separator {
   margin-top: 2em;
 }
-
 </style>

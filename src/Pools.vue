@@ -2,18 +2,18 @@
 	div(v-if="isDrizzleInitialized")
 		h1 Pools
 		div(class="row")
-			p Your ZLOT balance: 0
+			p Your balance: <strong>888.88 <span class="unit">ZLOT</span></strong>
 		div(class="row")
 			div(class="column")
-				info-panel(lp_symbol='ZHEGIC-HEGIC')
+				info-panel(lp_symbol='ZHEGIC-HEGIC' lp_link='https://app.uniswap.org/#/add/0x837010619aeb2AE24141605aFC8f66577f6fb2e7/0x584bC13c7D411c00c01A62e8019472dE68768430')
 			div(class="column")
-				info-panel(lp_symbol='ZHEGIC-ETH')
+				info-panel(lp_symbol='ZHEGIC-ETH' lp_link='https://app.uniswap.org/#/add/0x837010619aeb2AE24141605aFC8f66577f6fb2e7/ETH')
 		div(class="row spacer")
 		div(class="row")
 			div(class="column")
-				info-panel(lp_symbol='HEGIC-DAI')
+				info-panel(lp_symbol='HEGIC-DAI' lp_link='https://app.uniswap.org/#/add/0x584bC13c7D411c00c01A62e8019472dE68768430/0x6B175474E89094C44Da98b954EedeAC495271d0F')
 			div(class="column")
-				info-panel(lp_symbol='ZLOT-DAI')
+				info-panel(lp_symbol='ZLOT-DAI' lp_link='https://app.uniswap.org/#/add/0xA8e7AD77C60eE6f30BaC54E2E7c0617Bd7B5A03E/0x6B175474E89094C44Da98b954EedeAC495271d0F')
 
 </template>
 
@@ -51,7 +51,8 @@ export default {
 </script>
 
 <style>
-.spacer {
-	padding: 1em;
+div.spacer {
+	padding-top: 2em;
+  padding-bottom: 2em;
 }
 </style>
