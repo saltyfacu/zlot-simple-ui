@@ -5,7 +5,6 @@
       img(src="zl.png")
     div(class="nav")
       router-link(to="/stake") Stake
-      router-link(to="/pools") Pools
       router-link(to="/zgovernance") ZGovernance
     .section
       <router-view></router-view>

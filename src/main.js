@@ -7,7 +7,6 @@ import drizzleOptions from './drizzleOptions'
 
 import App from './App.vue'
 import Stake from './Stake.vue'
-import Pools from './Pools.vue'
 import ZGovernance from './ZGovernance.vue'
 
 
@@ -23,7 +22,6 @@ Vue.use(VueRouter)
 const routes = [
 	{ path: '/', redirect: '/stake' },
 	{ path: '/stake', component: Stake },
-	{ path: '/pools', component: Pools },
 	{ path: '/zgovernance', component: ZGovernance }
 ]
 
