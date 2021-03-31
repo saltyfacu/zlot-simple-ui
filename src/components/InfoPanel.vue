@@ -14,20 +14,71 @@ div(class="info-panel")
 		| 
 		<span class="unit"> {{ lp_symbol }} </span>
 	p
-	button(:disabled='!has_allowance_pool', @click.prevent='on_deposit') 🏦 Deposit
-	button(:disabled='!has_balance_pool', @click.prevent='on_withdraw') 💸 Withdraw
+	button(:disabled='!has_lp_allowance', @click.prevent='on_deposit') 🏦 Deposit
+	button(:disabled='!has_lp_balance', @click.prevent='on_withdraw') 💸 Withdraw
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+import ethers from 'ethers'
 
 export default {
-  name: "InfoPanel",
-  props: ['lp_symbol', 'lp_link'],
+	name: "InfoPanel",
+	props: ['lp_symbol', 'lp_contract', 'lp_link'],
+	data() {
+		return {
+			amount: 0,
+		}
+	},
+	filters: {
+		fromWei(data, precision) {
+			if (data === 'loading') return data
+			if (data > 2**255) return '�~H~^'
+			let value = ethers.utils.commify(ethers.utils.formatEther(data))
+			let parts = value.split('.')
 
-  computed: {
-  },
-  methods: {
-  },
+			if (precision === 0) return parts[0]
+
+			return parts[0] + '.' + parts[1].slice(0, precision)
+		},
+	},
+	computed: {
+		...mapGetters('accounts', ['activeAccount', 'activeBalance']),
+		...mapGetters('drizzle', ['drizzleInstance', 'isDrizzleInitialized']),
+		...mapGetters('contracts', ['getContractData', 'contractInstances']),
+		lp(){
+			return this.drizzleInstance.contracts[this.lp_contract].address
+		},
+		lp_balance() {
+			return this.call(this.lp_contract, 'balanceOf', [this.activeAccount])
+		},
+		has_lp_allowance() {
+			return !this.call(this.lp_contract, 'allowance', [this.activeAccount, this.lp]).isZero()
+		},
+		has_lp_balance() {
+			return (this.lp_balance > 0)
+		},
+	},
+	methods: {
+		call(contract, method, args, out='number') {
+			let key = this.drizzleInstance.contracts[contract].methods[method].cacheCall(...args)
+			let value
+			try {
+				value = this.contractInstances[contract][method][key].value 
+			} catch (error) {
+				value = null
+			}
+			switch (out) {
+				case 'number':
+					if (value === null) value = 0
+					return new ethers.BigNumber.from(value)
+				case 'address':
+					return value
+				default:
+					return value
+			}
+		}
+	},
 }
 
 </script>
